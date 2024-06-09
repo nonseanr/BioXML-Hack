@@ -27,6 +27,11 @@ class ProteinEncoder(torch.nn.Module):
             self.model = EsmForMaskedLM.from_pretrained(config_path)
         else:
             self.model = EsmForMaskedLM(config)
+        
+        # TODO: remove
+        for param in self.model.parameters():
+            param.requires_grad = False
+
         self.out = torch.nn.Linear(config.hidden_size, out_dim)
         
         # Set gradient checkpointing
@@ -62,34 +67,25 @@ class ProteinEncoder(torch.nn.Module):
                                                               return_tensors="pt",
                                                               padding=True)
             protein_inputs = {k: v.to(device) for k, v in protein_inputs.items()}
-            output, _ = self.forward(protein_inputs)
+            output = self.forward(protein_inputs)
             
             protein_repr.append(output)
         
         protein_repr = torch.cat(protein_repr, dim=0)
         return normalize(protein_repr, dim=-1)
 
-    def forward(self, inputs: dict, get_mask_logits: bool = False):
+    def forward(self, inputs: dict):
         """
         Encode protein sequence into protein representation
         Args:
             inputs: A dictionary containing the following keys:
                 - input_ids: [batch, seq_len]
                 - attention_mask: [batch, seq_len]
-            get_mask_logits: Whether to return the logits for masked tokens
-
+            
         Returns:
             protein_repr: [batch, protein_repr_dim]
-            mask_logits : [batch, seq_len, vocab_size]
         """
         last_hidden_state = self.model.esm(**inputs).last_hidden_state
         reprs = last_hidden_state[:, 0, :]
         reprs = self.out(reprs)
-
-        # Get logits for masked tokens
-        if get_mask_logits:
-            mask_logits = self.model.lm_head(last_hidden_state)
-        else:
-            mask_logits = None
-
-        return reprs, mask_logits
+        return reprs
