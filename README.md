@@ -1,4 +1,6 @@
-# BioxML Hack
+# BioxML Hack - Collaboration of Sean Raspet and Rico Meinl
+# Originally presented at the Bio X ML Hackathon at HF0 June 2023
+# Clustering molecular structure vs receptor interactions
 
 ```bash
 conda create -n biomlhack python=3.10
