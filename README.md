@@ -1,5 +1,5 @@
 # BioxML Hack - Collaboration of Sean Raspet and Rico Meinl
-# Originally presented at the Bio X ML Hackathon at HF0 June 2023
+# Originally presented at the Bio X ML Hackathon at HF0 June 2024
 # Clustering molecular structure vs receptor interactions
 
 ```bash
